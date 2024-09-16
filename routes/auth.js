@@ -9,16 +9,13 @@ router.post("/signup", async (req, res) => {
   const { email, username, password } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log(hashedPassword);
     const userId = new mongoose.Types.ObjectId();
-    console.log(userId);
     const newUser = new User({
       email,
       username,
       password: hashedPassword,
       userId,
     });
-    console.log(newUser);
     await newUser.save();
     return res.json({ userId });
   } catch (error) {
