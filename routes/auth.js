@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 const router = express.Router();
+import mongoose from "mongoose";
 
 router.post("/signup", async (req, res) => {
   const { email, username, password } = req.body;
