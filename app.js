@@ -4,10 +4,12 @@ import cookieParser from "cookie-parser";
 import dbConnection from "./config/db.js";
 import authRoutes from "./routes/auth.js";
 import conversationRoutes from "./routes/conversations.js";
+import cors from "cors";
 
 dotenv.config();
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
