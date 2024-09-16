@@ -1,7 +1,6 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 import User from "../models/User.js";
 const router = express.Router();
 import mongoose from "mongoose";
