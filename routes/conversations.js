@@ -95,4 +95,17 @@ router.delete("/:conversationId", async (req, res) => {
   }
 });
 
+router.post("/checkprevpersonalizedchat", async (req, res) => {
+  const { userId } = req.body;
+  try {
+    const user = await User.findOne({ userId }, "personalizedChat");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user.personalizedChat);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching personalized chat" });
+  }
+});
+
 export default router;
