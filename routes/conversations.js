@@ -95,17 +95,23 @@ router.delete("/:conversationId", async (req, res) => {
   }
 });
 
-router.post("/checkprevpersonalizedchat", async (req, res) => {
-  const { userId } = req.body;
-  try {
-    const user = await User.findOne({ userId }, "personalizedChat");
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    res.json(user.personalizedChat);
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching personalized chat" });
-  }
-});
+// router.post("/checkPersonalizedChats", async (req, res) => {
+//   try {
+//     console.log("fuckers")
+//     const {userId} = req.
+//     console.log(req.userId)
+//     // const {userId} = req.body;
+//     const user = await User.findOne({ userId: req.userId}).select('personalizedChats');
+//     console.log(user)
+//     console.log("hello")
+//     const personalizedChatsLength = user.personalizedChats.length
+//     res.json({ result: user, length: personalizedChatsLength})
+//   } catch (error) {
+//     console.error('Error retrieving personalized chats:', error);
+//     return { message: 'Error retrieving personalized chats', error };
+//   }
+// });
+
+
 
 export default router;
