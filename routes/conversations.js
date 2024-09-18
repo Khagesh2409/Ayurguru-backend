@@ -95,23 +95,4 @@ router.delete("/:conversationId", async (req, res) => {
   }
 });
 
-// router.post("/checkPersonalizedChats", async (req, res) => {
-//   try {
-//     console.log("fuckers")
-//     const {userId} = req.
-//     console.log(req.userId)
-//     // const {userId} = req.body;
-//     const user = await User.findOne({ userId: req.userId}).select('personalizedChats');
-//     console.log(user)
-//     console.log("hello")
-//     const personalizedChatsLength = user.personalizedChats.length
-//     res.json({ result: user, length: personalizedChatsLength})
-//   } catch (error) {
-//     console.error('Error retrieving personalized chats:', error);
-//     return { message: 'Error retrieving personalized chats', error };
-//   }
-// });
-
-
-
 export default router;

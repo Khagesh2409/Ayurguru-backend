@@ -1,4 +1,3 @@
-import { text } from "express";
 import mongoose from "mongoose";
 
 const chatSchema = new mongoose.Schema({
@@ -7,32 +6,10 @@ const chatSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 });
 
-const filesDataSchema = new mongoose.Schema({
-  fileText: { type: String, required: true },
-});
-
-
-const personalizedChatsSchema = new mongoose.Schema({
-  filesData: [filesDataSchema],
-  personalChats: {type: String, required: true},
-});
-
-
-
 const conversationSchema = new mongoose.Schema({
   conversationId: { type: String, required: true },
   chats: [chatSchema],
   createdAt: { type: Date, default: Date.now },
-});
-
-const filesTextSchema = new mongoose.Schema({
-  text: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now },
-});
-
-const personalizedChatSchema = new mongoose.Schema({
-  personalizedChats: [chatSchema],
-  filesText: [filesTextSchema],
 });
 
 const userSchema = new mongoose.Schema({
@@ -41,7 +18,11 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   conversations: [conversationSchema],
-  personalizedChats: [personalizedChatsSchema],
+  userId: String,
+  personalizedChats: {
+    personalChats: [{ message: String, sender: String, timestamp: Date }],
+    filesText: [{ text: String, sender: String, timestamp: Date }],
+  },
 });
 
 export default mongoose.model("User", userSchema);
