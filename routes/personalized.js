@@ -82,9 +82,9 @@ router.post("/addPersonalizedChat", async (req, res) => {
         timestamp: new Date(),
       };
       user.personalizedChats.personalChats.push(newChat);
-      console.log("Before save:", user.personalizedChats);
+      
       const savedUser = await user.save();
-      console.log("After save:", savedUser.personalizedChats);
+      
       res.json(newChat);
     } catch (error) {
       console.error("Error adding personalized chat:", error);
