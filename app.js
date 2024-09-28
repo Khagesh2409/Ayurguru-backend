@@ -5,6 +5,9 @@ import cors from "cors";
 import multer from "multer";
 import pkg from "pg";
 import fs from "fs";
+import { ObjectId } from "mongodb";
+import User from "./models/User.js";
+import mongoose from "mongoose";
 
 // Existing routes for MongoDB
 import authRoutes from "./routes/auth.js";
@@ -45,29 +48,36 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Route to handle file uploads and store them in PostgreSQL
 app.post("/upload", upload.single("file"), async (req, res) => {
-  const { userId } = req.body;
-  const fileData = fs.readFileSync(req.file.path);
-  const filename = req.file.originalname;
-  const fileType = req.file.mimetype.startsWith("image") ? "image" : "pdf";  // Detect file type
+  // Extract fields from the request body
+  const { userId, mongodb_id } = req.body; // Add mongodb_id from request body
+  const fileData = fs.readFileSync(req.file.path); // Read the file data from the temporary file
+  const filename = req.file.originalname; // Get the original filename
+  const fileType = req.file.mimetype.startsWith("image") ? "image" : "pdf"; // Detect file type based on mimetype
 
+  // SQL query text to insert the data into PostgreSQL
   const queryText = `
-    INSERT INTO user_files (user_id, filename, file_data, file_type) 
-    VALUES ($1, $2, $3, $4) RETURNING id;
+    INSERT INTO user_files (user_id, filename, file_data, file_type, mongodb_id) 
+    VALUES ($1, $2, $3, $4, $5) RETURNING id;
   `;
-  const values = [userId, filename, fileData, fileType];
+  const values = [userId, filename, fileData, fileType, mongodb_id]; // Include mongodb_id in the values array
 
   try {
+    // Execute the query
     const result = await pool.query(queryText, values);
+
     // Remove the file from the 'uploads' folder after saving to DB
     fs.unlinkSync(req.file.path);
+
+    // Send a response back to the client with the ID and filename
     res.status(200).json({ id: result.rows[0].id, filename: filename });
   } catch (error) {
+    // Log and send error response if there's an issue with the query or file operations
     console.error("Error uploading file:", error);
     res.status(500).send("Error uploading file.");
   }
 });
+
 
 // Route to fetch filenames of files uploaded by a user based on userId
 app.get("/userfiles/:userId", async (req, res) => {
@@ -104,22 +114,43 @@ app.get("/pdf/:filename", async (req, res) => {
   }
 });
 
-// Route to delete a file by filename
-app.delete("/delete/:filename", async (req, res) => {
-  const { filename } = req.params;
 
-  const queryText = `DELETE FROM user_files WHERE filename = $1 RETURNING *;`;
+app.delete("/delete/:userId/:filename", async (req, res) => {
+  const { userId, filename } = req.params;
+
   try {
-    const result = await pool.query(queryText, [filename]);
-    if (result.rowCount === 0) {
-      return res.status(404).send("File not found.");
+    // Step 1: Fetch the mongodb_id using the filename from PostgreSQL
+    const fetchQuery = `SELECT id, mongodb_id FROM user_files WHERE filename = $1;`;
+    const fetchResult = await pool.query(fetchQuery, [filename]);
+
+
+    if (fetchResult.rowCount === 0) {
+      return res.status(404).send("File not found in PostgreSQL.");
     }
-    res.status(200).send("File deleted successfully.");
+
+    const { id, mongodb_id } = fetchResult.rows[0];
+
+    // Step 2: Delete the file from PostgreSQL using the fetched ID
+    const deleteQuery = `DELETE FROM user_files WHERE id = $1 RETURNING *;`;
+    await pool.query(deleteQuery, [id]);
+    // Step 3: Delete the file text from MongoDB using the fetched mongodb_id
+    const user = await User.findOneAndUpdate(
+      { userId: userId },
+      { $pull: { 'personalizedChats.filesText': { _id: new ObjectId(mongodb_id) } } },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).send("User not found in MongoDB.");
+    }
+
+    res.status(200).send("File deleted successfully from both PostgreSQL and MongoDB.");
   } catch (error) {
     console.error("Error deleting file:", error);
     res.status(500).send("Error deleting file.");
   }
 });
+
 
 // Existing MongoDB routes
 app.use("/api/auth", authRoutes);

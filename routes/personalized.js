@@ -142,11 +142,14 @@ router.post("/addPersonalizedFileText", async (req, res) => {
         sender,
         timestamp: new Date(),
       };
-
+      
       user.personalizedChats.filesText.push(newFileText);
       await user.save();
-
-      res.json(newFileText);
+      
+      // Retrieve the ID of the newly added file text object
+      const addedFileText = user.personalizedChats.filesText[user.personalizedChats.filesText.length - 1];
+      
+      res.json({ id: addedFileText._id });
     } catch (error) {
       console.error("Error adding personalized file text:", error);
       res
