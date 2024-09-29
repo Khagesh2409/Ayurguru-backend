@@ -35,11 +35,24 @@ router.post("/signin", async (req, res) => {
       return res.status(400).json({ error: "Invalid email or password" });
     }
     const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "60s",
     });
     res.json({ token, userId: user.userId });
   } catch (error) {
     res.status(500).json({ error: "Error during sign-in" });
+  }
+});
+
+router.post("/is-auth", async (req, res) => {
+  const { token } = req.body;
+  try {
+    if (!token) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json(decoded);
+  } catch (error) {
+    res.status(401).json({ error: "Invalid token" });
   }
 });
 
