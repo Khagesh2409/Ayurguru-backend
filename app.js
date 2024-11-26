@@ -13,7 +13,7 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/auth.js";
 import conversationRoutes from "./routes/conversations.js";
 import personalizedChatRoutes from "./routes/personalized.js";
-
+import contactRoutes from "./routes/contact.js";
 // Load environment variables
 dotenv.config();
 
@@ -156,6 +156,7 @@ app.delete("/delete/:userId/:filename", async (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/conversations", conversationRoutes);
 app.use("/api/personalizedChats", personalizedChatRoutes);
+app.use("/api/contact", contactRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
