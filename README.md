@@ -36,9 +36,21 @@ Follow these steps to set up and run the backend locally:
 2. **Install Dependencies**  
    ```bash  
    npm install  
-   ```  
+   ```
+3. **PostgreSQL query to be writen while deploying Postgre db**
+   ```sql
+     CREATE TABLE user_files (
+     id SERIAL PRIMARY KEY,                -- Auto-incrementing primary key
+     user_id VARCHAR(255) NOT NULL,        -- User identifier (foreign key reference, if needed)
+     filename VARCHAR(255) NOT NULL,       -- Name of the uploaded file
+     file_data BYTEA NOT NULL,             -- Binary data of the file
+     file_type VARCHAR(50) NOT NULL,       -- Type of the file (image/pdf)
+     uploaded_at TIMESTAMP DEFAULT NOW(),  -- Timestamp of file upload (defaults to current time)
+     mongodb_id VARCHAR(255) NOT NULL      -- MongoDB ID reference
+     );
+   ```
 
-3. **Environment Variables**  
+5. **Environment Variables**  
    Create a `.env` file and add the following:  
    ```plaintext  
     MONGO_URI=<MONGO_URI>
@@ -59,7 +71,7 @@ Follow these steps to set up and run the backend locally:
     UNIVERSE_DOMAIN=<URL> 
    ```  
 
-4. **Run the Application**  
+6. **Run the Application**  
    ```bash  
    node app.js
    ```  
