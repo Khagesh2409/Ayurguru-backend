@@ -151,6 +151,20 @@ app.delete("/delete/:userId/:filename", async (req, res) => {
   }
 });
 
+app.get("/keep-server-active", (req, res) => {
+  console.log("Dummy route accessed at", new Date().toLocaleString());
+  res.send("Server is alive");
+});
+
+cron.schedule("*/8 * * * *", async () => {
+  try {
+    const response = await axios.get(process.env.BACKEND_URL + "/keep-server-active");
+    console.log("Response from dummy route:", response.data);
+  } catch (error) {
+    console.error("Error accessing the dummy route:", error.message);
+  }
+});
+
 
 // Existing MongoDB routes
 app.use("/api/auth", authRoutes);
