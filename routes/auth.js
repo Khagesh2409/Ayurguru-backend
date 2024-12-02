@@ -8,6 +8,19 @@ import mongoose from "mongoose";
 router.post("/signup", async (req, res) => {
   const { email, username, password } = req.body;
   try {
+    const existingUser = await User.findOne({ 
+      $or: [{ email }, { username }] 
+    });
+    if (existingUser) {
+      const errorMessages = [];
+      if (existingUser.email === email) {
+        errorMessages.push("Email is already in use.");
+      }
+      if (existingUser.username === username) {
+        errorMessages.push("Username is already taken.");
+      }
+      return res.status(400).json({ error: errorMessages.join(" ") });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = new mongoose.Types.ObjectId();
     const newUser = new User({
@@ -22,6 +35,7 @@ router.post("/signup", async (req, res) => {
     res.status(500).json({ error: "Server error during signup" });
   }
 });
+
 
 router.post("/signin", async (req, res) => {
   const { email, password } = req.body;
